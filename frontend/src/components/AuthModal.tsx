@@ -22,9 +22,9 @@ export function AuthModal({
   const [mode, setMode] = useState<"login" | "register" | "onboarding">(initialMode);
   const [onboardingStep, setOnboardingStep] = useState(0);
 
-  // Form Fields
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  // Form Fields — pre-filled with guest demo credentials for easy login
+  const [email, setEmail] = useState(initialMode === "login" ? "alex_guest" : "");
+  const [password, setPassword] = useState(initialMode === "login" ? "guest1234" : "");
   const [username, setUsername] = useState("");
   const [displayName, setDisplayName] = useState("");
 
@@ -380,6 +380,25 @@ export function AuthModal({
               </span>
               <div className="flex-1 h-px bg-[#2b3940]" />
             </div>
+
+            {/* Guest Quick-Login Banner */}
+            {mode === "login" && (
+              <div className="bg-[#1a2b32] border border-[#58cc02]/30 rounded-2xl px-4 py-3 flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-[10px] uppercase tracking-widest text-[#58cc02] font-black mb-0.5">🎯 Demo Credentials</p>
+                  <p className="text-xs text-[#9ab] font-semibold">
+                    <span className="text-white">alex_guest</span> / <span className="text-white">guest1234</span>
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => { setEmail("alex_guest"); setPassword("guest1234"); }}
+                  className="shrink-0 bg-[#58cc02] hover:bg-[#46a302] text-white text-[11px] font-black uppercase tracking-wider px-3 py-1.5 rounded-xl transition-all active:scale-95"
+                >
+                  Auto-fill
+                </button>
+              </div>
+            )}
 
             {/* Email / Username & Password Form */}
             <form onSubmit={handleStandardAuth} className="space-y-3">
