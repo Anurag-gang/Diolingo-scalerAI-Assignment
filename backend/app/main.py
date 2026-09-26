@@ -108,7 +108,7 @@ def root():
 
 @app.get("/health", tags=["Health"])
 def health_check():
-    return {"status": "ok", "timestamp": datetime.utcnow().isoformat()}
+    return {"status": "healthy", "timestamp": datetime.utcnow().isoformat()}
 
 
 @app.get("/favicon.ico", include_in_schema=False)
@@ -317,7 +317,9 @@ class RegisterRequest(BaseModel):
 
 
 class LoginRequest(BaseModel):
-    email: str
+    # Accept either "email" or "username" — frontend sends username for guest demo login
+    email: Optional[str] = None
+    username: Optional[str] = None
     password: str
 
 
@@ -472,11 +474,41 @@ def register_user(req: RegisterRequest, db: Session = Depends(get_db)):
 
 @app.post("/api/v1/auth/login", tags=["Authentication"])
 def login_user(req: LoginRequest, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.email == req.email.strip().lower()).first()
+    # Support login with either email or username
+    if not req.email and not req.username:
+        raise ApiError("MISSING_CREDENTIALS", "Provide an email or username.", 400)
+
+    user = None
+    if req.email:
+        clean = req.email.strip().lower()
+        # Could be an email or a username typed into the email field
+        if "@" in clean:
+            user = db.query(User).filter(User.email == clean).first()
+        else:
+            # Treat as username
+            user = db.query(User).filter(User.username == clean).first()
+
+    if not user and req.username:
+        user = db.query(User).filter(User.username == req.username.strip().lower()).first()
+
     if not user or not bcrypt.checkpw(req.password.encode("utf-8"), user.password_hash.encode("utf-8")):
-        raise ApiError("INVALID_CREDENTIALS", "Incorrect email or password.", 401)
+        raise ApiError("INVALID_CREDENTIALS", "Incorrect email/username or password.", 401)
     if not user.is_active:
         raise ApiError("ACCOUNT_DEACTIVATED", "This account has been deactivated by an administrator.", 403)
+    token = create_token(user.id)
+    return {"access_token": token, "token_type": "bearer", "user": serialize_user(db, user)}
+
+
+@app.post("/api/v1/auth/guest", tags=["Authentication"])
+def guest_auth(db: Session = Depends(get_db)):
+    """Instant one-click demo login returning an authenticated token for Alex Rivera (Guest Learner)."""
+    user = db.query(User).filter(User.username == "alex_guest").first()
+    if not user:
+        user = db.query(User).filter(User.email == "guest@diolingo.edu").first()
+    if not user:
+        user = db.query(User).first()
+    if not user:
+        raise ApiError("NOT_FOUND", "No learner user found in database.", 404)
     token = create_token(user.id)
     return {"access_token": token, "token_type": "bearer", "user": serialize_user(db, user)}
 

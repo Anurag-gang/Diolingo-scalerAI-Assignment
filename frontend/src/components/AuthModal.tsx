@@ -79,6 +79,23 @@ export function AuthModal({
     }
   };
 
+  const handleGuestAuth = async () => {
+    setLoading(true);
+    setErrorMessage(null);
+    try {
+      const res = await apiRequest<{ access_token: string; user: any }>("/api/v1/auth/guest", {
+        method: "POST",
+      });
+      localStorage.setItem("diolingo_token", res.access_token);
+      onAuthSuccess(res.access_token, res.user);
+      onClose();
+    } catch (err: any) {
+      setErrorMessage(err.message || "Guest login failed.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleOAuth = async (provider: "google" | "apple") => {
     setLoading(true);
     setErrorMessage(null);
@@ -383,19 +400,30 @@ export function AuthModal({
 
             {/* Guest Quick-Login Banner */}
             {mode === "login" && (
-              <div className="bg-[#1a2b32] border border-[#58cc02]/30 rounded-2xl px-4 py-3 flex items-center justify-between gap-3">
-                <div>
-                  <p className="text-[10px] uppercase tracking-widest text-[#58cc02] font-black mb-0.5">🎯 Demo Credentials</p>
-                  <p className="text-xs text-[#9ab] font-semibold">
-                    <span className="text-white">alex_guest</span> / <span className="text-white">guest1234</span>
-                  </p>
+              <div className="bg-[#1a2b32] border border-[#58cc02]/30 rounded-2xl p-3 flex flex-col gap-2">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-[10px] uppercase tracking-widest text-[#58cc02] font-black mb-0.5">🎯 Quick Demo Access</p>
+                    <p className="text-xs text-[#9ab] font-semibold">
+                      <span className="text-white">alex_guest</span> / <span className="text-white">guest1234</span>
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => { setEmail("alex_guest"); setPassword("guest1234"); }}
+                    className="shrink-0 bg-[#2b3940] hover:bg-[#3f525b] text-white text-[11px] font-black uppercase tracking-wider px-3 py-1 rounded-xl transition-all"
+                  >
+                    Auto-fill
+                  </button>
                 </div>
                 <button
                   type="button"
-                  onClick={() => { setEmail("alex_guest"); setPassword("guest1234"); }}
-                  className="shrink-0 bg-[#58cc02] hover:bg-[#46a302] text-white text-[11px] font-black uppercase tracking-wider px-3 py-1.5 rounded-xl transition-all active:scale-95"
+                  onClick={handleGuestAuth}
+                  disabled={loading}
+                  className="w-full bg-[#58cc02] hover:bg-[#46a302] text-white text-xs font-black uppercase tracking-wider py-2 rounded-xl transition-all shadow-md active:scale-98 flex items-center justify-center gap-1.5"
                 >
-                  Auto-fill
+                  <Sparkles className="w-3.5 h-3.5" />
+                  {loading ? "Entering..." : "Instant 1-Click Demo Login"}
                 </button>
               </div>
             )}

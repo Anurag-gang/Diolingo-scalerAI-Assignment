@@ -142,15 +142,38 @@ export async function apiRequest<T>(
     headers["Authorization"] = `Bearer ${token}`;
   }
 
-  const res = await fetch(`${API_BASE_URL}${path}`, {
-    ...options,
-    headers,
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${API_BASE_URL}${path}`, {
+      ...options,
+      headers,
+    });
+  } catch (networkErr) {
+    throw new Error("Cannot reach the server. Please check your connection.");
+  }
 
-  const data = await res.json();
+  // Safely parse — some error responses return plain text, not JSON
+  let data: any;
+  const contentType = res.headers.get("content-type") || "";
+  try {
+    if (contentType.includes("application/json")) {
+      data = await res.json();
+    } else {
+      const text = await res.text();
+      // Attempt JSON parse anyway (some servers omit content-type)
+      try { data = JSON.parse(text); } catch { data = { detail: text || res.statusText }; }
+    }
+  } catch {
+    data = { detail: res.statusText || "Unknown error" };
+  }
+
   if (!res.ok) {
-    const errMessage = data?.error?.message || data?.detail || "An unexpected API error occurred.";
+    const errMessage =
+      data?.error?.message ||
+      data?.detail ||
+      `Request failed with status ${res.status}`;
     throw new Error(errMessage);
   }
   return data as T;
 }
+
