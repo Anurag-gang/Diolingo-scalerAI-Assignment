@@ -80,22 +80,19 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-allowed_origins_env = os.getenv("ALLOWED_ORIGINS", "")
-allowed_origins_list = [o.strip() for o in allowed_origins_env.split(",") if o.strip()]
-default_origins = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "https://diolingo-scaler-ai-assignment.vercel.app",
-]
 
+# ---------------------------------------------------------------------------
+# CORS — allow all origins (JWT Bearer tokens used, not cookies, so safe)
+# ---------------------------------------------------------------------------
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=allowed_origins_list or default_origins,
-    allow_origin_regex=r"^https?://.*",
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
 
 
 @app.get("/", tags=["Health"])
