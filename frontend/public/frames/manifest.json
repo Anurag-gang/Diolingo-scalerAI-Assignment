@@ -1,0 +1,67 @@
+﻿{
+    "frames":  [
+                   "/frames/ezgif-frame-001.jpg",
+                   "/frames/ezgif-frame-002.jpg",
+                   "/frames/ezgif-frame-003.jpg",
+                   "/frames/ezgif-frame-004.jpg",
+                   "/frames/ezgif-frame-005.jpg",
+                   "/frames/ezgif-frame-006.jpg",
+                   "/frames/ezgif-frame-007.jpg",
+                   "/frames/ezgif-frame-008.jpg",
+                   "/frames/ezgif-frame-009.jpg",
+                   "/frames/ezgif-frame-010.jpg",
+                   "/frames/ezgif-frame-011.jpg",
+                   "/frames/ezgif-frame-012.jpg",
+                   "/frames/ezgif-frame-013.jpg",
+                   "/frames/ezgif-frame-014.jpg",
+                   "/frames/ezgif-frame-015.jpg",
+                   "/frames/ezgif-frame-016.jpg",
+                   "/frames/ezgif-frame-017.jpg",
+                   "/frames/ezgif-frame-018.jpg",
+                   "/frames/ezgif-frame-019.jpg",
+                   "/frames/ezgif-frame-020.jpg",
+                   "/frames/ezgif-frame-021.jpg",
+                   "/frames/ezgif-frame-022.jpg",
+                   "/frames/ezgif-frame-023.jpg",
+                   "/frames/ezgif-frame-024.jpg",
+                   "/frames/ezgif-frame-025.jpg",
+                   "/frames/ezgif-frame-026.jpg",
+                   "/frames/ezgif-frame-027.jpg",
+                   "/frames/ezgif-frame-028.jpg",
+                   "/frames/ezgif-frame-029.jpg",
+                   "/frames/ezgif-frame-030.jpg"
+               ],
+    "stages":  {
+                   "roost":  {
+                                 "startPct":  0,
+                                 "label":  "1 — The Roost",
+                                 "endPct":  0.2,
+                                 "endFrame":  6,
+                                 "startFrame":  1
+                             },
+                   "carnival":  {
+                                    "startPct":  0.5,
+                                    "label":  "3 — Carnival Street",
+                                    "endPct":  0.8,
+                                    "endFrame":  24,
+                                    "startFrame":  16
+                                },
+                   "glide":  {
+                                 "startPct":  0.2,
+                                 "label":  "2 — The Glide",
+                                 "endPct":  0.5,
+                                 "endFrame":  15,
+                                 "startFrame":  7
+                             },
+                   "arena":  {
+                                 "startPct":  0.8,
+                                 "label":  "4 — The Arena",
+                                 "endPct":  1,
+                                 "endFrame":  30,
+                                 "startFrame":  25
+                             }
+               },
+    "width":  794,
+    "height":  720,
+    "totalFrames":  30
+}

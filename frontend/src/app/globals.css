@@ -1,0 +1,345 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Duolingo UI-Parity Official Color Tokens */
+  --brand-green: #58cc02;
+  --brand-green-shadow: #58a700;
+  --brand-green-hover: #61e002;
+
+  --brand-blue: #1cb0f6;
+  --brand-blue-shadow: #1899d6;
+  --brand-blue-hover: #23c4ff;
+
+  --brand-red: #ff4b4b;
+  --brand-red-shadow: #ea2b2b;
+  --brand-red-hover: #ff5e5e;
+
+  --brand-gold: #ffc800;
+  --brand-gold-shadow: #e5a500;
+  --brand-gold-hover: #ffd21f;
+
+  --brand-purple: #ce82ff;
+  --brand-purple-shadow: #a560e8;
+  --brand-purple-hover: #d797ff;
+
+  --brand-gray: #e5e5e5;
+  --brand-gray-shadow: #cecece;
+  --brand-gray-dark: #afafaf;
+
+  /* Surfaces & Canvas */
+  --bg-primary: #0e161a;
+  --bg-surface: #131f24;
+  --bg-elevated: #1a2b32;
+  --border-subtle: #2b3940;
+  --border-hover: #3f525b;
+
+  --text-primary: #ffffff;
+  --text-secondary: #9aa9b2;
+  --text-muted: #5d6f78;
+
+  --spring-bounce: cubic-bezier(0.16, 1, 0.3, 1);
+  --press-curve: cubic-bezier(0, 0, 0.2, 1);
+}
+
+@layer base {
+  * {
+    border-color: var(--border-subtle);
+  }
+  body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+/* ============================================================================
+ * Signature Duolingo 2-Layer 3D-Pressable Button Styles
+ * Top layer translates down 4px on :active meeting the bottom shadow layer.
+ * ============================================================================ */
+.pressable-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  cursor: pointer;
+  user-select: none;
+  outline: none;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  background: transparent;
+  border: none;
+  padding: 0;
+  vertical-align: middle;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.pressable-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+  filter: grayscale(0.5);
+}
+
+.pressable-btn-shadow {
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  transform: translateY(4px);
+  transition: transform 100ms ease;
+}
+
+.pressable-btn-face {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  height: 100%;
+  border-radius: 16px;
+  transform: translateY(0);
+  transition: transform 120ms var(--press-curve), filter 120ms ease;
+  white-space: nowrap;
+}
+
+/* Press interaction: 4px downward translation meeting shadow */
+.pressable-btn:not(:disabled):hover .pressable-btn-face {
+  filter: brightness(1.05);
+}
+
+.pressable-btn:not(:disabled):active .pressable-btn-face {
+  transform: translateY(4px);
+}
+
+/* Button Sizing */
+.pressable-sm .pressable-btn-face {
+  padding: 8px 16px;
+  font-size: 0.75rem;
+  border-radius: 12px;
+}
+.pressable-sm .pressable-btn-shadow {
+  border-radius: 12px;
+  transform: translateY(3px);
+}
+.pressable-sm:not(:disabled):active .pressable-btn-face {
+  transform: translateY(3px);
+}
+
+.pressable-md .pressable-btn-face {
+  padding: 12px 24px;
+  font-size: 0.875rem;
+  border-radius: 16px;
+}
+
+.pressable-lg .pressable-btn-face {
+  padding: 16px 32px;
+  font-size: 1rem;
+  border-radius: 18px;
+}
+.pressable-lg .pressable-btn-shadow {
+  border-radius: 18px;
+  transform: translateY(5px);
+}
+.pressable-lg:not(:disabled):active .pressable-btn-face {
+  transform: translateY(5px);
+}
+
+/* Button Variants */
+/* 1. Green (Primary) */
+.pressable-green .pressable-btn-shadow {
+  background-color: var(--brand-green-shadow);
+}
+.pressable-green .pressable-btn-face {
+  background-color: var(--brand-green);
+  color: #ffffff;
+}
+
+/* 2. Blue (Secondary / Action) */
+.pressable-blue .pressable-btn-shadow {
+  background-color: var(--brand-blue-shadow);
+}
+.pressable-blue .pressable-btn-face {
+  background-color: var(--brand-blue);
+  color: #ffffff;
+}
+
+/* 3. White / Light Surface */
+.pressable-white .pressable-btn-shadow {
+  background-color: #2b3940;
+}
+.pressable-white .pressable-btn-face {
+  background-color: #1a2b32;
+  color: #1cb0f6;
+  border: 2px solid #2b3940;
+}
+.pressable-white:not(:disabled):hover .pressable-btn-face {
+  background-color: #20353e;
+}
+
+/* 4. Red (Danger / Discard) */
+.pressable-red .pressable-btn-shadow {
+  background-color: var(--brand-red-shadow);
+}
+.pressable-red .pressable-btn-face {
+  background-color: var(--brand-red);
+  color: #ffffff;
+}
+
+/* 5. Gold (Streak / Achievement) */
+.pressable-gold .pressable-btn-shadow {
+  background-color: var(--brand-gold-shadow);
+}
+.pressable-gold .pressable-btn-face {
+  background-color: var(--brand-gold);
+  color: #131f24;
+}
+
+/* 6. Outline / Dark Neutral */
+.pressable-neutral .pressable-btn-shadow {
+  background-color: #1c272c;
+}
+.pressable-neutral .pressable-btn-face {
+  background-color: #263842;
+  color: #ffffff;
+  border: 2px solid #364b56;
+}
+
+/* 7. Ghost / Minimal */
+.pressable-ghost .pressable-btn-shadow {
+  background-color: transparent;
+}
+.pressable-ghost .pressable-btn-face {
+  background-color: transparent;
+  color: #9aa9b2;
+}
+.pressable-ghost:not(:disabled):hover .pressable-btn-face {
+  background-color: rgba(255, 255, 255, 0.06);
+  color: #ffffff;
+}
+
+/* ============================================================================
+ * Duolingo Node Pathway Spacing & Chunky Circular Buttons
+ * ============================================================================ */
+.path-node-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 68px;
+  border-radius: 9999px;
+  user-select: none;
+  cursor: pointer;
+}
+
+.path-node-shadow {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  transform: translateY(6px);
+}
+
+.path-node-face {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  border-radius: 9999px;
+  transform: translateY(0);
+  transition: transform 120ms var(--press-curve), filter 120ms ease;
+}
+
+.path-node-btn:not(:disabled):active .path-node-face {
+  transform: translateY(6px);
+}
+
+/* Node Variants */
+.node-unlocked .path-node-shadow {
+  background-color: #58a700;
+}
+.node-unlocked .path-node-face {
+  background-color: #58cc02;
+  color: #ffffff;
+}
+
+.node-completed .path-node-shadow {
+  background-color: #e5a500;
+}
+.node-completed .path-node-face {
+  background-color: #ffc800;
+  color: #131f24;
+}
+
+.node-locked .path-node-shadow {
+  background-color: #24333a;
+}
+.node-locked .path-node-face {
+  background-color: #2e414a;
+  color: #637782;
+  cursor: not-allowed;
+}
+
+/* Pulse Beacon Ring for Recommended Current Node */
+@keyframes beaconPulse {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(88, 204, 2, 0.7);
+  }
+  70% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 16px rgba(88, 204, 2, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(88, 204, 2, 0);
+  }
+}
+
+.beacon-ring {
+  animation: beaconPulse 2.2s infinite;
+}
+
+/* Subtle Shimmer for Specular Buttons */
+@keyframes sheen {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+
+.animate-sheen {
+  animation: sheen 3s infinite;
+}
+
+/* Equalizer Bars for VoicePill */
+@keyframes eqBounce {
+  0%, 100% { height: 4px; }
+  50% { height: 18px; }
+}
+
+.eq-bar-1 { animation: eqBounce 0.8s ease-in-out infinite 0.1s; }
+.eq-bar-2 { animation: eqBounce 0.8s ease-in-out infinite 0.25s; }
+.eq-bar-3 { animation: eqBounce 0.8s ease-in-out infinite 0.4s; }
+.eq-bar-4 { animation: eqBounce 0.8s ease-in-out infinite 0.15s; }
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #0e161a;
+}
+::-webkit-scrollbar-thumb {
+  background: #2b3940;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3f525b;
+}
