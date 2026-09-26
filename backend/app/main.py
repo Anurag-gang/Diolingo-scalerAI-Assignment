@@ -82,15 +82,42 @@ app = FastAPI(
 
 allowed_origins_env = os.getenv("ALLOWED_ORIGINS", "")
 allowed_origins_list = [o.strip() for o in allowed_origins_env.split(",") if o.strip()]
+default_origins = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "https://diolingo-scaler-ai-assignment.vercel.app",
+]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=allowed_origins_list or ["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_origins=allowed_origins_list or default_origins,
     allow_origin_regex=r"^https?://.*",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.get("/", tags=["Health"])
+def root():
+    return {
+        "status": "healthy",
+        "service": "Diolingo Language Learning API",
+        "version": "1.0.0",
+        "docs_url": "/docs",
+        "openapi_url": "/openapi.json",
+    }
+
+
+@app.get("/health", tags=["Health"])
+def health_check():
+    return {"status": "ok", "timestamp": datetime.utcnow().isoformat()}
+
+
+@app.get("/favicon.ico", include_in_schema=False)
+def favicon():
+    return Response(status_code=204)
+
 
 
 # --- Standardized Error Envelope & Rate Limiting Middleware ---

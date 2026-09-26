@@ -667,20 +667,6 @@ export default function DiolingoApp() {
   // Winding S-curve horizontal offsets in px
   const pathOffsets = [0, -48, -76, -32, 32, 76, 40, -24];
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-[#0e161a] p-6 text-white">
-        <img
-          src="/mascot-dio.png"
-          alt="Diolingo Mascot Dio"
-          className="w-24 h-24 object-contain animate-bounce mb-4"
-        />
-        <p className="text-xl font-black text-[#58cc02] tracking-wide">
-          Loading Diolingo...
-        </p>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen flex flex-col">
