@@ -2669,34 +2669,7 @@ export default function DiolingoApp() {
             </div>
           )}
 
-          {/* ================================================================= */}
-          {/* 60+ WORLD LANGUAGES COURSE PICKER MODAL                           */}
-          {/* ================================================================= */}
-          <CoursePickerModal
-            isOpen={showCoursePicker}
-            onClose={() => setShowCoursePicker(false)}
-            courses={courses}
-            activeCourseId={user?.active_course?.id || 1}
-            onSelectCourse={(course) => handleCourseChange(course.id)}
-          />
 
-          {/* ================================================================= */}
-          {/* AUTH & ONBOARDING MODAL (Google/Apple OAuth + Password + Stepper)  */}
-          {/* ================================================================= */}
-          <AuthModal
-            isOpen={showAuthModal}
-            onClose={() => setShowAuthModal(false)}
-            initialMode={onboardingAuthMode}
-            onAuthSuccess={async (newToken, newUser) => {
-              setToken(newToken);
-              setUser(newUser);
-              setTopViewMode("dashboard");
-              if (newUser.active_course) {
-                await loadCoursePath(newUser.active_course.id, newToken);
-              }
-              showNotice(`Welcome, ${newUser.display_name}!`, "success");
-            }}
-          />
 
           {/* ================================================================= */}
           {/* SUPER DIOLINGO SUBSCRIPTION PAYWALL PREVIEW MODAL (P3)            */}
@@ -2775,6 +2748,34 @@ export default function DiolingoApp() {
           )}
         </div>
       )}
+      {/* ================================================================= */}
+      {/* GLOBAL MODALS — rendered at root level so accessible from any view */}
+      {/* ================================================================= */}
+
+      {/* 60+ WORLD LANGUAGES COURSE PICKER MODAL */}
+      <CoursePickerModal
+        isOpen={showCoursePicker}
+        onClose={() => setShowCoursePicker(false)}
+        courses={courses}
+        activeCourseId={user?.active_course?.id || 1}
+        onSelectCourse={(course) => handleCourseChange(course.id)}
+      />
+
+      {/* AUTH & ONBOARDING MODAL — accessible from landing page login/signup buttons */}
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        initialMode={onboardingAuthMode}
+        onAuthSuccess={async (newToken, newUser) => {
+          setToken(newToken);
+          setUser(newUser);
+          setTopViewMode("dashboard");
+          if (newUser.active_course) {
+            await loadCoursePath(newUser.active_course.id, newToken);
+          }
+          showNotice(`Welcome, ${newUser.display_name}!`, "success");
+        }}
+      />
     </div>
   );
 }
