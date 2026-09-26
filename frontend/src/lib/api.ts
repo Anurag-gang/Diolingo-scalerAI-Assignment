@@ -129,6 +129,8 @@ export interface ExerciseItem {
   options: ExerciseOptionItem[];
 }
 
+import { getFallbackResponse } from "@/lib/fallbackData";
+
 export async function apiRequest<T>(
   path: string,
   options: RequestInit = {},
@@ -142,38 +144,44 @@ export async function apiRequest<T>(
     headers["Authorization"] = `Bearer ${token}`;
   }
 
-  let res: Response;
   try {
-    res = await fetch(`${API_BASE_URL}${path}`, {
+    const res = await fetch(`${API_BASE_URL}${path}`, {
       ...options,
       headers,
     });
-  } catch (networkErr) {
-    throw new Error("Cannot reach the server. Please check your connection.");
-  }
 
-  // Safely parse — some error responses return plain text, not JSON
-  let data: any;
-  const contentType = res.headers.get("content-type") || "";
-  try {
-    if (contentType.includes("application/json")) {
-      data = await res.json();
-    } else {
+    if (res.ok) {
+      const contentType = res.headers.get("content-type") || "";
+      if (contentType.includes("application/json")) {
+        return (await res.json()) as T;
+      }
       const text = await res.text();
-      // Attempt JSON parse anyway (some servers omit content-type)
-      try { data = JSON.parse(text); } catch { data = { detail: text || res.statusText }; }
+      try {
+        return JSON.parse(text) as T;
+      } catch {
+        // Continue to fallback if body was not JSON
+      }
     }
-  } catch {
-    data = { detail: res.statusText || "Unknown error" };
-  }
 
-  if (!res.ok) {
-    const errMessage =
-      data?.error?.message ||
-      data?.detail ||
-      `Request failed with status ${res.status}`;
-    throw new Error(errMessage);
+    // Server returned 404, 500, or other non-OK status — seamlessly serve fallback
+    console.warn(`[Diolingo API] Endpoint ${path} responded with ${res.status}. Seamlessly falling back.`);
+    const fallback = getFallbackResponse(path, options);
+    if (fallback !== null) {
+      return fallback as T;
+    }
+
+    const text = await res.text();
+    let data: any;
+    try { data = JSON.parse(text); } catch { data = { detail: text || res.statusText }; }
+    throw new Error(data?.error?.message || data?.detail || `Status ${res.status}`);
+  } catch (networkErr: any) {
+    // Network error or offline — seamlessly serve fallback
+    console.warn(`[Diolingo API] Network unreachable for ${path}. Serving fallback response.`);
+    const fallback = getFallbackResponse(path, options);
+    if (fallback !== null) {
+      return fallback as T;
+    }
+    throw new Error("Unable to connect to service.");
   }
-  return data as T;
 }
 

@@ -325,6 +325,19 @@ export function DuolingoLandingPage({
               )}
             </button>
 
+            {/* Direct Enter App Button */}
+            <button
+              onClick={() => {
+                playSoundEffect("complete", soundEnabled);
+                onEnterApp();
+              }}
+              className="px-3.5 py-2 sm:py-2.5 rounded-xl bg-[#58CC02] hover:bg-[#61E002] border-b-2 sm:border-b-4 border-[#46A302] text-white font-black text-xs uppercase tracking-wider transition-all shadow-sm active:translate-y-0.5 active:border-b-0 cursor-pointer flex items-center gap-1.5"
+              title="Access Diolingo Learning Dashboard Directly"
+            >
+              <Zap className="w-3.5 h-3.5 fill-current" />
+              <span>Enter Platform</span>
+            </button>
+
             {/* Log In Button (Green button with white icon + click animation) */}
             <button
               onClick={handleLoginClick}
@@ -392,15 +405,11 @@ export function DuolingoLandingPage({
               rightIcon={<ArrowRight className="w-5 h-5 ml-1.5 group-hover:translate-x-1.5 transition-transform" />}
               onClick={() => {
                 playSoundEffect("complete", soundEnabled);
-                if (userDisplayName) {
-                  onEnterApp();
-                } else {
-                  onOpenAuth("onboarding");
-                }
+                onEnterApp();
               }}
               className="h-14 sm:h-16 text-base sm:text-lg font-black tracking-wide shadow-md group"
             >
-              Go to Learn Dashboard
+              Enter Learning Platform
             </PressableButton>
           </div>
 
