@@ -59,6 +59,7 @@ import {
   FALLBACK_COURSES,
   FALLBACK_USER,
   FALLBACK_UNITS,
+  FALLBACK_LESSON,
 } from "@/lib/fallbackData";
 
 type NavTab = "learn" | "leaderboard" | "shop" | "profile" | "settings" | "admin";
@@ -335,7 +336,7 @@ export default function DiolingoApp() {
     if (!skill.lesson_id) return;
     if (user && user.stats.hearts <= 0) {
       setShowHeartsPopover(true);
-      showNotice("Youhave 0 hearts! Practice to refill +1 heart before starting a lesson.", "error");
+      showNotice("You have 0 hearts! Practice to refill +1 heart before starting a lesson.", "error");
       return;
     }
     try {
@@ -346,14 +347,21 @@ export default function DiolingoApp() {
         exercises: ExerciseItem[];
       }>(`/api/v1/lessons/${skill.lesson_id}`, {}, token);
 
+      const rawLesson = data?.lesson || {};
+      const exercises = (data?.exercises && Array.isArray(data.exercises) && data.exercises.length > 0)
+        ? data.exercises
+        : (rawLesson.exercises && Array.isArray(rawLesson.exercises) && rawLesson.exercises.length > 0)
+          ? rawLesson.exercises
+          : FALLBACK_LESSON.exercises;
+
       setActiveLesson({
-        id: data.lesson.id,
-        title: data.lesson.title,
-        skill_title: data.lesson.skill_title,
-        xp_reward: data.lesson.xp_reward,
-        is_legendary: data.lesson.is_legendary,
-        grammar_tip: data.lesson.grammar_tip,
-        exercises: data.exercises,
+        id: rawLesson.id || skill.lesson_id,
+        title: rawLesson.title || skill.title,
+        skill_title: rawLesson.skill_title || skill.title,
+        xp_reward: rawLesson.xp_reward || skill.xp_reward || 15,
+        is_legendary: rawLesson.is_legendary || false,
+        grammar_tip: rawLesson.grammar_tip || skill.grammar_tip || "",
+        exercises: exercises,
       });
       setCurrentExIndex(0);
       setCorrectCount(0);
@@ -362,8 +370,8 @@ export default function DiolingoApp() {
       setOutOfHeartsModal(false);
 
       // Auto-speak first exercise if it has audio
-      if (data.exercises[0]?.audio_text) {
-        speakPhrase(data.exercises[0].audio_text, data.exercises[0].audio_lang, false, user?.sound_enabled ?? true);
+      if (exercises[0]?.audio_text) {
+        speakPhrase(exercises[0].audio_text, exercises[0].audio_lang, false, user?.sound_enabled ?? true);
       }
     } catch (err: any) {
       showNotice(err.message, "error");
@@ -382,15 +390,15 @@ export default function DiolingoApp() {
   };
 
   const currentExercise: ExerciseItem | null = useMemo(() => {
-    if (!activeLesson || !activeLesson.exercises[currentExIndex]) return null;
+    if (!activeLesson?.exercises || !activeLesson.exercises[currentExIndex]) return null;
     return activeLesson.exercises[currentExIndex];
   }, [activeLesson, currentExIndex]);
 
   // Shuffled right-side tiles for match_pairs
   const shuffledRightMatches = useMemo(() => {
-    if (!currentExercise || currentExercise.exercise_type !== "match_pairs") return [];
+    if (!currentExercise || currentExercise.exercise_type !== "match_pairs" || !currentExercise.options) return [];
     const pairs = currentExercise.options.map((o) => ({ left: o.text, right: o.match }));
-    return [...pairs].sort((a, b) => a.right.localeCompare(b.right));
+    return [...pairs].sort((a, b) => (a.right || "").localeCompare(b.right || ""));
   }, [currentExercise]);
 
   // Handle Match Pairs tile tap
@@ -503,11 +511,12 @@ export default function DiolingoApp() {
   // Advance to next exercise or complete lesson
   const handleContinueLesson = async () => {
     if (!activeLesson) return;
+    const exercisesList = activeLesson.exercises || [];
     const nextIdx = currentExIndex + 1;
-    if (nextIdx < activeLesson.exercises.length) {
+    if (nextIdx < exercisesList.length) {
       setCurrentExIndex(nextIdx);
       resetExerciseState();
-      const nextEx = activeLesson.exercises[nextIdx];
+      const nextEx = exercisesList[nextIdx];
       if (nextEx?.audio_text) {
         speakPhrase(nextEx.audio_text, nextEx.audio_lang, false, user?.sound_enabled ?? true);
       }
@@ -528,7 +537,7 @@ export default function DiolingoApp() {
             body: JSON.stringify({
               idempotency_key: idemKey,
               correct_count: correctCount,
-              total_questions: activeLesson.exercises.length,
+              total_questions: exercisesList.length || 1,
             }),
           },
           token
@@ -2239,7 +2248,7 @@ export default function DiolingoApp() {
                         style={{
                           width: `${Math.round(
                             ((currentExIndex + (lessonFeedback?.checked ? 1 : 0)) /
-                              Math.max(1, activeLesson.exercises.length)) *
+                              Math.max(1, activeLesson.exercises?.length || 1)) *
                             100
                           )}%`,
                         }}
@@ -2258,7 +2267,7 @@ export default function DiolingoApp() {
                       {/* Exercise Type Badge & Grammar Tip */}
                       <div className="flex items-center justify-between">
                         <span className="bg-emerald-50 text-[#46A302] border border-emerald-200 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider">
-                          Question {currentExIndex + 1} of {activeLesson.exercises.length} •{" "}
+                          Question {currentExIndex + 1} of {activeLesson.exercises?.length || 1} •{" "}
                           {currentExercise.exercise_type.replace("_", " ")}
                         </span>
                         {currentExercise.hint_text && (

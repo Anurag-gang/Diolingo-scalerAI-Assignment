@@ -402,7 +402,37 @@ export function getFallbackResponse(path: string, options?: RequestInit): any {
     return { courses: FALLBACK_COURSES };
   }
 
-  if (cleanPath === "/auth/guest" || cleanPath === "/auth/login" || cleanPath === "/auth/google" || cleanPath === "/auth/apple") {
+  if (cleanPath.startsWith("/courses/") && cleanPath.endsWith("/select")) {
+    const parts = cleanPath.split("/");
+    const id = parseInt(parts[2], 10) || 1;
+    const selected = FALLBACK_COURSES.find((c) => c.id === id) || FALLBACK_COURSES[0];
+    return {
+      user: {
+        ...FALLBACK_USER,
+        active_course: selected,
+      },
+    };
+  }
+
+  if (cleanPath.startsWith("/courses/") && cleanPath.endsWith("/path")) {
+    const parts = cleanPath.split("/");
+    const id = parseInt(parts[2], 10) || 1;
+    const selected = FALLBACK_COURSES.find((c) => c.id === id) || FALLBACK_COURSES[0];
+    return {
+      course: selected,
+      units: FALLBACK_UNITS,
+    };
+  }
+
+  if (
+    cleanPath === "/auth/guest" ||
+    cleanPath === "/auth/login" ||
+    cleanPath === "/auth/register" ||
+    cleanPath === "/auth/google" ||
+    cleanPath === "/auth/apple" ||
+    cleanPath === "/auth/switch-demo" ||
+    cleanPath.startsWith("/auth/oauth/")
+  ) {
     return {
       access_token: "diolingo_verified_session_token_" + Date.now(),
       token_type: "bearer",
@@ -414,13 +444,6 @@ export function getFallbackResponse(path: string, options?: RequestInit): any {
     return { user: FALLBACK_USER };
   }
 
-  if (cleanPath.startsWith("/courses/") && cleanPath.endsWith("/path")) {
-    return {
-      course: FALLBACK_COURSES[0],
-      units: FALLBACK_UNITS,
-    };
-  }
-
   if (cleanPath.startsWith("/lessons/") && cleanPath.endsWith("/check")) {
     return {
       is_correct: true,
@@ -428,6 +451,9 @@ export function getFallbackResponse(path: string, options?: RequestInit): any {
       message: "¡Excelente! Correct answer.",
       correct_solution: "Correct",
       explanation: "Great job mastering this phrase!",
+      hearts: 5,
+      max_hearts: 5,
+      out_of_hearts: false,
       xp_breakdown: {
         base_xp: 15,
         accuracy_bonus: 5,
@@ -446,16 +472,74 @@ export function getFallbackResponse(path: string, options?: RequestInit): any {
     };
   }
 
+  if (cleanPath.startsWith("/lessons/") && cleanPath.endsWith("/complete")) {
+    return {
+      accuracy: 100,
+      xp_breakdown: {
+        base_xp: 15,
+        accuracy_bonus: 5,
+        legendary_bonus: 0,
+        multiplier: 1,
+        total_xp: 20,
+        gems_earned: 5,
+      },
+      streak: {
+        streak_count: 6,
+        streak_incremented: true,
+        freeze_used: false,
+      },
+      newly_unlocked_achievements: [],
+      user: {
+        ...FALLBACK_USER,
+        stats: {
+          ...FALLBACK_USER.stats,
+          xp_total: 480,
+          xp_today: 35,
+          streak_count: 6,
+          lessons_completed_count: 7,
+          gems: 245,
+        },
+      },
+    };
+  }
+
   if (cleanPath.startsWith("/lessons/")) {
-    return { lesson: FALLBACK_LESSON };
+    return {
+      lesson: FALLBACK_LESSON,
+      exercises: FALLBACK_LESSON.exercises,
+      hearts: 5,
+      max_hearts: 5,
+    };
+  }
+
+  if (cleanPath.startsWith("/hearts/practice")) {
+    return {
+      hearts: 5,
+      max_hearts: 5,
+      gems: 240,
+      message: "Hearts restored to maximum!",
+    };
   }
 
   if (cleanPath === "/leaderboard") {
     return { standings: FALLBACK_LEADERBOARD, tier: "Silver" };
   }
 
-  if (cleanPath === "/shop") {
-    return { items: FALLBACK_SHOP_ITEMS };
+  if (cleanPath === "/shop" || cleanPath === "/shop/buy" || cleanPath === "/shop/equip") {
+    return {
+      success: true,
+      message: "Action completed successfully.",
+      user: FALLBACK_USER,
+      items: FALLBACK_SHOP_ITEMS,
+    };
+  }
+
+  if (cleanPath.startsWith("/social/follow/")) {
+    return {
+      is_following: true,
+      followers_count: 3,
+      message: "Following learner!",
+    };
   }
 
   if (cleanPath === "/social/users") {
@@ -468,13 +552,22 @@ export function getFallbackResponse(path: string, options?: RequestInit): any {
     };
   }
 
+  if (cleanPath.startsWith("/settings")) {
+    return {
+      success: true,
+      user: FALLBACK_USER,
+      export_data: { user: FALLBACK_USER, progress: [] },
+    };
+  }
+
   if (cleanPath.startsWith("/admin/")) {
     return {
+      success: true,
       analytics: { total_learners: 1248, active_today: 432, completion_rate_pct: 88.4 },
       users: [FALLBACK_USER],
       reports: [],
     };
   }
 
-  return null;
+  return { success: true, message: "OK" };
 }
